@@ -1,0 +1,59 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+}
+
+android {
+    namespace = "com.example.safepill"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.example.safepill"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+
+dependencies {
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // ✅ TensorFlow Lite (AI 모델 실행용)
+// TensorFlow Lite Core
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+
+// TensorFlow Lite Support Library
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
+
+// TensorFlow Lite Select Ops (🔥 FULLY_CONNECTED v12 지원)
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
+
+}

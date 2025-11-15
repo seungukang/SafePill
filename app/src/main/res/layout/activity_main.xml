@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <!-- 상단 파란 바: 중앙 로고 정확히 중앙 + 인셋 제거 -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:background="@color/safepill_blue"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:contentInsetStartWithNavigation="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:src="@drawable/white_logo"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/app_name"/>
+        </FrameLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!-- 상단 일러스트: 툴바 바로 아래, 16:9 비율로 과하게 안 커지게 -->
+    <ImageView
+        android:id="@+id/ivIllustration"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/medical_illustration"
+        android:contentDescription="의료 관련 이미지"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardInfo"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constrainedHeight="true"/>
+
+    <!-- 복용 주의사항 카드: 이미지 아래, 하단 버튼 위 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardUseCompatPadding="true"
+        app:cardElevation="6dp"
+        app:layout_constraintTop_toBottomOf="@id/ivIllustration"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomButtons">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="36dp">
+
+            <TextView
+                android:id="@+id/tvInfoTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="복용 주의사항"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:paddingBottom="6dp"/>
+
+            <TextView
+                android:id="@+id/tvInfoBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• 알레르기/기저질환이 있으면 복용 전 전문가와 상담하세요.\n• 이상 반응 시 즉시 복용 중단 후 119 또는 병원에 연락하세요."
+                android:textSize="15sp"
+                android:lineSpacingExtra="6dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+
+    <!-- 하단 버튼바 (그대로 유지) -->
+    <LinearLayout
+        android:id="@+id/bottomButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCamera"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="카메라"/>
+
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="0dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn119"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="119"
+            app:backgroundTint="@color/emergency_red"
+            android:textColor="@android:color/white"/>
+
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="0dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProfile"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="내 정보"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
