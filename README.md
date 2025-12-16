@@ -33,7 +33,7 @@
 ## 🖼️ 앱 실행 화면
 | 메인 화면 | 분석 결과 | 내 정보 |
 |---|---|---|
-| 메인 | 결과 | 프로필 |
+| <img src="main.jpg" width="250"/> | <img src="result.jpg" width="250"/> | <img src="profile.jpg" width="250"/> |
 
 ---
 
