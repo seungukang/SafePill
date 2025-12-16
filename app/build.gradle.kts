@@ -26,10 +26,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -37,23 +39,29 @@ android {
 
 dependencies {
 
+    // androidx 기본 구성
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // 🔸 CardView (activity_result.xml에서 사용)
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // 🔸 lifecycleScope (코루틴 사용)
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+
+    // 테스트 관련
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // ✅ TensorFlow Lite (AI 모델 실행용)
-// TensorFlow Lite Core
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    // ---- 🔽 Retrofit & OkHttp 추가 ----
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-// TensorFlow Lite Support Library
-    implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
-
-// TensorFlow Lite Select Ops (🔥 FULLY_CONNECTED v12 지원)
-    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
-
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    // ---- 🔼 추가 끝 ----
 }

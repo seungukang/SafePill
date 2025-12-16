@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 앱 내부 캐시 경로 (/data/data/패키지명/cache/images) -->
+    <!-- 앱 내부 캐시 전체 (/data/data/패키지명/cache) -->
     <cache-path
-        name="images"
-        path="images/" />
-
-    <!-- 필요 시 내부 저장소 파일 공유 대비 -->
-    <files-path
-        name="internal_files"
-        path="images/" />
+        name="cache"
+        path="." />
 
 </paths>

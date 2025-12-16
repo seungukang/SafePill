@@ -3,7 +3,7 @@ package com.example.safepill
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -11,30 +11,39 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import org.tensorflow.lite.Interpreter
-import java.io.FileInputStream
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var btnCamera: View
+    private var photoUri: Uri? = null
 
-    private val takePreview =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bmp ->
-            if (bmp == null) {
+    // 카메라 촬영 콜백 (실제 사진 파일 저장)
+    private val takePicture =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (!success || photoUri == null) {
                 Toast.makeText(this, "촬영 취소됨", Toast.LENGTH_SHORT).show()
                 return@registerForActivityResult
             }
 
-            val label = classify(bmp)
+            // 촬영 성공 → ResultActivity로 URI 전달
+            val intent = Intent(this, ResultActivity::class.java).apply {
+                putExtra("image_uri", photoUri.toString())
+            }
+            startActivity(intent)
+        }
 
-            startActivity(
-                Intent(this, ResultActivity::class.java)
-                    .putExtra("pred_label", label ?: "분류 실패")
-            )
+    // 카메라 권한 요청 콜백
+    private val requestCamPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                startCameraCapture()
+            } else {
+                Toast.makeText(this, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,111 +58,55 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // 카메라 버튼
         btnCamera = findViewById(R.id.btnCamera)
         btnCamera.setOnClickListener { ensureCameraThenShoot() }
 
-        printModelInfo()
+        // 119 버튼 (다이얼만 열림)
+        val btn119: View = findViewById(R.id.btn119)
+        btn119.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:119")))
+        }
+
+        // ✅ 내 정보 버튼 → ProfileActivity로 이동
+        val btnProfile: View = findViewById(R.id.btnProfile)
+        btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
     }
 
+    /** 카메라 권한 확인 후 촬영 시작 */
     private fun ensureCameraThenShoot() {
         val granted = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.CAMERA
+            this,
+            Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
         if (granted) {
-            takePreview.launch(null)
+            startCameraCapture()
         } else {
             requestCamPermission.launch(Manifest.permission.CAMERA)
         }
     }
 
-    private val requestCamPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) takePreview.launch(null)
-            else Toast.makeText(this, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        }
-
-    // ==========================
-    // 🔥 classify() — threshold 기반 분류 적용
-    // ==========================
-    private fun classify(bitmap: Bitmap): String? {
-        return try {
-            val labels = assets.open("labels.txt").bufferedReader().readLines()
-            val interpreter = Interpreter(loadModelFile("model.tflite"))
-
-            val resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
-
-            val input = Array(1) { Array(224) { Array(224) { FloatArray(3) } } }
-
-            for (y in 0 until 224) {
-                for (x in 0 until 224) {
-                    val p = resized.getPixel(x, y)
-
-                    val r = ((p shr 16) and 0xFF) / 255.0f
-                    val g = ((p shr 8) and 0xFF) / 255.0f
-                    val b = (p and 0xFF) / 255.0f
-
-                    input[0][y][x][0] = r
-                    input[0][y][x][1] = g
-                    input[0][y][x][2] = b
-                }
-            }
-
-            val output = Array(1) { FloatArray(labels.size) }
-
-            interpreter.run(input, output)
-
-            println("OUTPUT VALS = ${output[0].joinToString()}")
-
-            interpreter.close()
-
-            // ==========================
-            // 🔥 threshold로 분류
-            // 0번 출력값 기준
-            // ==========================
-            val score = output[0][0]
-            val label = if (score > 0.731f) "탁센" else "타이레놀"
-
-            return label
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "AI 오류: ${e.message}", Toast.LENGTH_LONG).show()
-            null
-        }
+    /** 실제로 사진 파일을 만들고 카메라 앱 실행 */
+    private fun startCameraCapture() {
+        val imageFile = createImageFile()
+        val uri = FileProvider.getUriForFile(
+            this,
+            "${applicationContext.packageName}.fileprovider",
+            imageFile
+        )
+        photoUri = uri
+        takePicture.launch(uri)
     }
 
-    private fun loadModelFile(name: String): MappedByteBuffer {
-        val fd = assets.openFd(name)
-        FileInputStream(fd.fileDescriptor).use { fis ->
-            return fis.channel.map(
-                FileChannel.MapMode.READ_ONLY,
-                fd.startOffset,
-                fd.declaredLength
-            )
-        }
-    }
-
-    private fun printModelInfo() {
-        try {
-            val interpreter = Interpreter(loadModelFile("model.tflite"))
-            val inTensor = interpreter.getInputTensor(0)
-            val outTensor = interpreter.getOutputTensor(0)
-
-            val inShape = inTensor.shape()
-            val outShape = outTensor.shape()
-
-            Toast.makeText(
-                this,
-                "INPUT: ${inShape.joinToString()}  OUTPUT: ${outShape.joinToString()}",
-                Toast.LENGTH_LONG
-            ).show()
-
-            interpreter.close()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Err: ${e.message}", Toast.LENGTH_LONG).show()
-        }
+    /** 캐시 폴더에 임시 파일 생성 */
+    private fun createImageFile(): File {
+        return File.createTempFile(
+            "pill_${System.currentTimeMillis()}",
+            ".jpg",
+            cacheDir
+        )
     }
 }
