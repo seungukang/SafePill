@@ -25,9 +25,8 @@
 ---
 
 ## 📽️ 데모 영상
-| 기능 | 영상 링크 |
-|---|---|
-| SafePill 영상 | 🔗 바로보기 |
+[![SafePill Demo](https://img.youtube.com/vi/gKXrew_Xky8/0.jpg)](https://youtube.com/shorts/gKXrew_Xky8?feature=share)
+
 
 ---
 
